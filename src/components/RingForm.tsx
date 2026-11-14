@@ -21,6 +21,7 @@ export const RingForm = ({ token, isDemo }: RingFormProps) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, type, message: message || undefined }),
       });
+
       setStatus(res.ok ? 'sent' : 'error');
     } catch {
       setStatus('error');

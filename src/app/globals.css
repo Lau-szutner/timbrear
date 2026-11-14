@@ -238,3 +238,59 @@ body {
 @utility loading-card {
   @apply relative rounded-[2rem] border border-card-stroke bg-white p-10 text-center shadow-xl shadow-pine/5;
 }
+
+@utility register-section {
+  @apply mx-auto flex max-w-6xl justify-center px-6 pb-16 pt-8;
+}
+
+@utility register-form {
+  @apply flex flex-col gap-5;
+}
+
+@utility register-field {
+  @apply flex flex-col gap-2;
+}
+
+@utility register-label {
+  @apply text-sm font-semibold text-pine;
+}
+
+@utility register-input {
+  @apply min-h-12 w-full rounded-xl border border-stroke bg-page px-4 py-3 text-ink outline-none transition placeholder:text-input-placeholder focus:border-sage focus:ring-2 focus:ring-sage/20 aria-invalid:border-red-500 aria-invalid:focus:ring-red-200;
+}
+
+@utility register-hint {
+  @apply text-sm text-text-soft;
+}
+
+@utility register-field-error {
+  @apply text-sm text-red-700;
+}
+
+@utility register-error {
+  @apply rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+}
+
+@utility register-submit {
+  @apply mt-2 w-full;
+}
+
+@utility register-title {
+  @apply mt-3 text-3xl font-semibold tracking-tight;
+}
+
+@utility register-description {
+  @apply mt-3 leading-7 text-text-muted;
+}
+
+@utility register-success {
+  @apply flex flex-col items-center text-center;
+}
+
+@utility register-back-link {
+  @apply mt-6 text-center text-sm text-sage-dark;
+}
+
+@utility text-link {
+  @apply font-semibold text-sage-dark;
+}

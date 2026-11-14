@@ -36,12 +36,20 @@ export default function Home() {
           <span className="brand-mark">T</span>
           <span className="brand-name">TimbreAR</span>
         </Link>
-        <Link
-          href={demoUrl}
-          className="header-action hover:border-pine hover:bg-white"
-        >
-          Probar demo
-        </Link>
+        <nav className="flex items-center gap-3">
+          <Link
+            href="/registro"
+            className="header-action hover:border-pine hover:bg-white"
+          >
+            Crear cuenta
+          </Link>
+          <Link
+            href={demoUrl}
+            className="header-action hover:border-pine hover:bg-white"
+          >
+            Probar demo
+          </Link>
+        </nav>
       </header>
 
       <section className="landing-hero md:grid-cols-[1.1fr_0.9fr] md:pb-28 md:pt-20 lg:px-8">

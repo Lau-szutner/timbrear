@@ -10,6 +10,10 @@ una página del timbre y puede enviar un aviso.
 El proyecto está en desarrollo. Hoy incluye:
 
 - Una landing page en `/` que explica la idea.
+- Un formulario de registro en `/registro`. Valida email y contraseña y guarda
+  la contraseña con un hash `scrypt`.
+- Un endpoint `POST /api/auth/register` que valida las entradas en el servidor
+  y crea la cuenta en MySQL.
 - Una página de timbre en `/t/[token]`.
 - Un formulario para avisar si alguien es una visita o trae un paquete.
 - Un endpoint que valida el aviso y, para timbres reales, lo guarda en MySQL.
@@ -17,9 +21,11 @@ El proyecto está en desarrollo. Hoy incluye:
   conexión a la base de datos, no guarda el aviso y no envía notificaciones.
 - Un endpoint de salud de la base de datos en `/api/health`.
 
-Todavía no están implementados el registro de residentes, la creación de timbres,
-la generación de códigos QR ni el envío de notificaciones push. Por eso, el
-mensaje de éxito de la demo no representa una notificación real.
+Todavía no están implementados el inicio de sesión, la creación y administración
+de timbres, la generación de códigos QR ni el envío de notificaciones push. El
+registro crea una cuenta, pero aún no inicia una sesión ni permite configurar
+un departamento. El mensaje de éxito de la demo no representa una notificación
+real.
 
 ## Tecnologías
 
@@ -40,13 +46,20 @@ src/
   app/
     page.tsx                 Landing page (/)
     layout.tsx               Layout compartido y metadatos
+    registro/page.tsx        Formulario de registro (/registro)
     api/
       health/route.ts        Comprueba la conexión a MySQL
+      auth/register/route.ts Valida y registra usuarios
       rings/route.ts         Recibe avisos de visitas y paquetes
     t/
       [token]/
         page.tsx             Página pública de un timbre
-        RingForm.tsx         Formulario interactivo del visitante
+  components/
+    RegisterForm.tsx         Formulario de alta de usuario
+    RegistrationPanel.tsx    Estados del flujo de registro
+    RingForm.tsx             Formulario interactivo del visitante
+  lib/validation/
+    registerSchema.ts        Validación compartida del registro
   server/
     config/database.js       Conexión Sequelize a MySQL
     models/
@@ -55,7 +68,10 @@ src/
       Ring.js                Modelo de aviso recibido
       Index.js               Asociaciones entre los modelos
     services/
+      userService.js         Alta de usuario y hash de contraseña
       ringService.js         Búsqueda del timbre y registro del aviso
+    security/
+      password.js            Hash de contraseñas con scrypt
 db/
   config.cjs                 Configuración de Sequelize CLI
   migrations/                Cambios versionados del esquema de la base
@@ -146,7 +162,9 @@ permisos.
 | Ruta | Función |
 | --- | --- |
 | `/` | Landing page del proyecto. |
+| `/registro` | Formulario para crear una cuenta. |
 | `/t/[token]` | Página pública del timbre identificado por token. |
+| `POST /api/auth/register` | Valida y crea una cuenta de residente. |
 | `POST /api/rings` | Valida y registra un aviso. |
 | `GET /api/health` | Comprueba la conexión a la base de datos. |
 
