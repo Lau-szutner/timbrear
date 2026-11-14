@@ -294,3 +294,15 @@ body {
 @utility text-link {
   @apply font-semibold text-sage-dark;
 }
+
+@utility auth-mode-switch {
+  @apply mb-8 grid grid-cols-2 rounded-xl bg-card-muted p-1;
+}
+
+@utility auth-mode-option {
+  @apply rounded-lg px-3 py-2.5 text-center text-sm font-semibold text-text-muted transition hover:text-pine;
+}
+
+@utility auth-mode-option-active {
+  @apply bg-white text-pine shadow-sm;
+}

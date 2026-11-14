@@ -1,7 +1,7 @@
 import 'server-only';
 import { UniqueConstraintError } from 'sequelize';
 import { User } from '../models/Index.js';
-import { hashPassword } from '../security/password.js';
+import { hashPassword, verifyPassword } from '../security/password.js';
 
 export async function registerUser({ email, password }) {
   try {
@@ -15,4 +15,13 @@ export async function registerUser({ email, password }) {
     if (error instanceof UniqueConstraintError) return null;
     throw error;
   }
+}
+
+export async function authenticateUser({ email, password }) {
+  const user = await User.findOne({ where: { email } });
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
+    return null;
+  }
+
+  return { id: user.id, email: user.email };
 }

@@ -10,10 +10,11 @@ una página del timbre y puede enviar un aviso.
 El proyecto está en desarrollo. Hoy incluye:
 
 - Una landing page en `/` que explica la idea.
-- Un formulario de registro en `/registro`. Valida email y contraseña y guarda
-  la contraseña con un hash `scrypt`.
-- Un endpoint `POST /api/auth/register` que valida las entradas en el servidor
-  y crea la cuenta en MySQL.
+- Formularios de registro en `/register` e inicio de sesión en `/login`, con
+  cambio entre ambos. Las contraseñas se validan y almacenan usando `scrypt`.
+- Endpoints `POST /api/auth/register` y `POST /api/auth/login` que validan las
+  entradas en el servidor. Ambos crean una cookie de sesión firmada y
+  `HttpOnly`.
 - Una página de timbre en `/t/[token]`.
 - Un formulario para avisar si alguien es una visita o trae un paquete.
 - Un endpoint que valida el aviso y, para timbres reales, lo guarda en MySQL.
@@ -21,11 +22,10 @@ El proyecto está en desarrollo. Hoy incluye:
   conexión a la base de datos, no guarda el aviso y no envía notificaciones.
 - Un endpoint de salud de la base de datos en `/api/health`.
 
-Todavía no están implementados el inicio de sesión, la creación y administración
-de timbres, la generación de códigos QR ni el envío de notificaciones push. El
-registro crea una cuenta, pero aún no inicia una sesión ni permite configurar
-un departamento. El mensaje de éxito de la demo no representa una notificación
-real.
+Todavía no están implementadas la administración de timbres, la generación de
+códigos QR ni las notificaciones push. El registro y el login funcionan, pero
+no hay aún una página privada de administración. El mensaje de éxito de la demo
+no representa una notificación real.
 
 ## Tecnologías
 
@@ -46,20 +46,26 @@ src/
   app/
     page.tsx                 Landing page (/)
     layout.tsx               Layout compartido y metadatos
-    registro/page.tsx        Formulario de registro (/registro)
+    register/page.tsx        Formulario de registro (/register)
+    login/page.tsx           Formulario de inicio de sesión (/login)
     api/
       health/route.ts        Comprueba la conexión a MySQL
       auth/register/route.ts Valida y registra usuarios
+      auth/login/route.ts    Autentica usuarios y crea sesión
       rings/route.ts         Recibe avisos de visitas y paquetes
     t/
       [token]/
         page.tsx             Página pública de un timbre
   components/
+    AuthModeSwitch.tsx       Navegación entre login y registro
+    LoginForm.tsx            Formulario de inicio de sesión
+    LoginPanel.tsx           Estados visuales del login
     RegisterForm.tsx         Formulario de alta de usuario
     RegistrationPanel.tsx    Estados del flujo de registro
     RingForm.tsx             Formulario interactivo del visitante
   lib/validation/
-    registerSchema.ts        Validación compartida del registro
+    registerSchema.ts        Validación del registro
+    loginSchema.ts           Validación del login
   server/
     config/database.js       Conexión Sequelize a MySQL
     models/
@@ -72,6 +78,7 @@ src/
       ringService.js         Búsqueda del timbre y registro del aviso
     security/
       password.js            Hash de contraseñas con scrypt
+      session.js             Firma y valida la cookie de sesión
 db/
   config.cjs                 Configuración de Sequelize CLI
   migrations/                Cambios versionados del esquema de la base
@@ -102,12 +109,16 @@ por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
 
    ```env
    DATABASE_URL=mysql://USUARIO:CONTRASEÑA@localhost:3306/timbrear_dev
+   AUTH_SECRET=un-secreto-aleatorio-de-al-menos-32-bytes
    ```
 
    Reemplazá `USUARIO` y `CONTRASEÑA` con las credenciales de un usuario de
    MySQL que tenga permisos sobre `timbrear_dev`. Si la contraseña contiene
    caracteres reservados de URL, como `@`, `/` o `#`, deben codificarse para
    usarse en la URL. No subas `.env.local` ni compartas sus credenciales.
+   Generá `AUTH_SECRET` con `openssl rand -base64 32`. Es necesario tanto para
+   registrarse como para iniciar sesión, ya que el servidor firma la cookie de
+   sesión con ese secreto.
 
 3. Crear la base de datos con una cuenta autorizada de MySQL:
 
@@ -131,8 +142,10 @@ por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
    de demostración, visitá
    [http://localhost:3000/t/demo1234abcd](http://localhost:3000/t/demo1234abcd).
 
-La demo no necesita que MySQL esté iniciado. Las páginas de timbres reales y
-`/api/health` sí requieren una conexión válida a la base de datos.
+La demo no necesita que MySQL esté iniciado. El registro, el login, las páginas
+de timbres reales y `/api/health` requieren una conexión válida a la base de
+datos. El registro y el login también requieren que `AUTH_SECRET` esté
+configurado.
 
 ## Comandos
 
@@ -162,9 +175,11 @@ permisos.
 | Ruta | Función |
 | --- | --- |
 | `/` | Landing page del proyecto. |
-| `/registro` | Formulario para crear una cuenta. |
+| `/register` | Formulario para crear una cuenta. |
+| `/login` | Formulario para iniciar sesión. |
 | `/t/[token]` | Página pública del timbre identificado por token. |
 | `POST /api/auth/register` | Valida y crea una cuenta de residente. |
+| `POST /api/auth/login` | Valida credenciales e inicia una sesión. |
 | `POST /api/rings` | Valida y registra un aviso. |
 | `GET /api/health` | Comprueba la conexión a la base de datos. |
 

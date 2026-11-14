@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
 const demoUrl = '/t/demo1234abcd';
+
 const qrCells = new Set([
-  0, 1, 2, 5, 6, 7, 9, 11, 12, 14, 16, 17, 18, 20, 21, 22, 24, 25, 27, 28,
-  29, 31, 33, 35, 36, 37, 39, 40, 42, 43, 45, 47, 48,
+  0, 1, 2, 5, 6, 7, 9, 11, 12, 14, 16, 17, 18, 20, 21, 22, 24, 25, 27, 28, 29,
+  31, 33, 35, 36, 37, 39, 40, 42, 43, 45, 47, 48,
 ]);
 
 const steps = [
@@ -28,27 +30,24 @@ export default function Home() {
   return (
     <main className="page-shell overflow-hidden">
       <header className="site-header lg:px-8">
-        <Link
-          href="/"
-          className="brand-link"
-          aria-label="TimbreAR, inicio"
-        >
-          <span className="brand-mark">T</span>
-          <span className="brand-name">TimbreAR</span>
-        </Link>
-        <nav className="flex items-center gap-3">
-          <Link
-            href="/registro"
-            className="header-action hover:border-pine hover:bg-white"
-          >
-            Crear cuenta
+        <nav className="sm:flex-row justify-between w-full items-center flex flex-col gap-5">
+          <Link href="/" className="brand-link" aria-label="TimbreAR, inicio">
+            <Logo />
           </Link>
-          <Link
-            href={demoUrl}
-            className="header-action hover:border-pine hover:bg-white"
-          >
-            Probar demo
-          </Link>
+          <div className="flex gap-4">
+            <Link
+              href="/login"
+              className="header-action hover:border-pine hover:bg-white"
+            >
+              Iniciar sesión
+            </Link>
+            <Link
+              href={demoUrl}
+              className="header-action hover:border-pine hover:bg-white"
+            >
+              Probar demo
+            </Link>
+          </div>
         </nav>
       </header>
 
@@ -63,15 +62,12 @@ export default function Home() {
             <span className="text-sage">QR.</span>
           </h1>
           <p className="hero-description">
-            Pegá un código en la entrada de tu edificio. Quien llegue lo escanea,
-            avisa si es una visita o trae un paquete, y vos sabés que te están
-            esperando.
+            Pegá un código en la entrada de tu edificio. Quien llegue lo
+            escanea, avisa si es una visita o trae un paquete, y vos sabés que
+            te están esperando.
           </p>
           <div className="hero-actions">
-            <Link
-              href={demoUrl}
-              className="button-primary hover:bg-pine-hover"
-            >
+            <Link href={demoUrl} className="button-primary hover:bg-pine-hover">
               Probar la demo
               <span className="ml-2" aria-hidden="true">
                 →
@@ -135,17 +131,16 @@ export default function Home() {
           <div className="steps-grid">
             {steps.map(([number, title, description]) => (
               <article key={number} className="step-card">
-                <span className="text-sm font-semibold text-sage">{number}</span>
+                <span className="text-sm font-semibold text-sage">
+                  {number}
+                </span>
                 <h3 className="mt-4 text-lg font-semibold">{title}</h3>
                 <p className="mt-2 leading-7 text-text-muted">{description}</p>
               </article>
             ))}
           </div>
           <div className="mt-10">
-            <Link
-              href={demoUrl}
-              className="demo-text-link hover:text-pine"
-            >
+            <Link href={demoUrl} className="demo-text-link hover:text-pine">
               Entrar a la demo →
             </Link>
           </div>

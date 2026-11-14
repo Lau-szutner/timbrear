@@ -1,14 +1,11 @@
-import Link from 'next/link';
 import { RegistrationPanel } from '@/components/RegistrationPanel';
+import { Logo } from '@/components/Logo';
 
 export default function RegisterPage() {
   return (
     <main className="page-shell">
       <header className="site-header lg:px-8">
-        <Link href="/" className="brand-link" aria-label="TimbreAR, inicio">
-          <span className="brand-mark">T</span>
-          <span className="brand-name">TimbreAR</span>
-        </Link>
+        <Logo />
       </header>
 
       <section className="register-section">

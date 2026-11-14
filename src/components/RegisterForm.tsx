@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { registerSchema } from '@/lib/validation/registerSchema';
 
 interface RegisterFormProps {
@@ -24,10 +24,11 @@ export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
     password?: string;
     confirmPassword?: string;
   }>({});
+
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setFieldErrors({});
     setFormError('');
@@ -75,7 +76,9 @@ export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
         setFormError('No se pudo crear la cuenta. Intentá de nuevo más tarde.');
       }
     } catch {
-      setFormError('No se pudo conectar. Revisá tu conexión e intentá de nuevo.');
+      setFormError(
+        'No se pudo conectar. Revisá tu conexión e intentá de nuevo.',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -98,7 +101,9 @@ export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           aria-invalid={Boolean(fieldErrors.email)}
-          aria-describedby={fieldErrors.email ? 'register-email-error' : undefined}
+          aria-describedby={
+            fieldErrors.email ? 'register-email-error' : undefined
+          }
         />
         {fieldErrors.email && (
           <p className="register-field-error" id="register-email-error">
@@ -175,7 +180,7 @@ export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
       )}
 
       <button
-        className="button-primary register-submit hover:bg-pine-hover disabled:cursor-wait disabled:opacity-60"
+        className="button-primary register-submit hover:bg-pine-hover disabled:cursor-wait disabled:opacity-60 cursor-pointer"
         type="submit"
         disabled={isSubmitting}
       >
