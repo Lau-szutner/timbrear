@@ -1,5 +1,6 @@
 import { LoginPanel } from '@/components/LoginPanel';
 import { Logo } from '@/components/Logo';
+
 export default function LoginPage() {
   return (
     <main className="page-shell">

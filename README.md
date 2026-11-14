@@ -15,6 +15,11 @@ El proyecto está en desarrollo. Hoy incluye:
 - Endpoints `POST /api/auth/register` y `POST /api/auth/login` que validan las
   entradas en el servidor. Ambos crean una cookie de sesión firmada y
   `HttpOnly`.
+- Un dashboard privado en `/dashboard`, protegido por la cookie de sesión.
+- Alta de timbres desde el dashboard. Cada timbre se asocia a la cuenta
+  autenticada, recibe un token único y muestra un código QR para abrir su
+  página.
+- Cierre de sesión que elimina la cookie.
 - Una página de timbre en `/t/[token]`.
 - Un formulario para avisar si alguien es una visita o trae un paquete.
 - Un endpoint que valida el aviso y, para timbres reales, lo guarda en MySQL.
@@ -22,10 +27,9 @@ El proyecto está en desarrollo. Hoy incluye:
   conexión a la base de datos, no guarda el aviso y no envía notificaciones.
 - Un endpoint de salud de la base de datos en `/api/health`.
 
-Todavía no están implementadas la administración de timbres, la generación de
-códigos QR ni las notificaciones push. El registro y el login funcionan, pero
-no hay aún una página privada de administración. El mensaje de éxito de la demo
-no representa una notificación real.
+Todavía no están implementadas la edición y eliminación de timbres ni las
+notificaciones push. El mensaje de éxito de la demo no representa una
+notificación real.
 
 ## Tecnologías
 
@@ -48,22 +52,27 @@ src/
     layout.tsx               Layout compartido y metadatos
     register/page.tsx        Formulario de registro (/register)
     login/page.tsx           Formulario de inicio de sesión (/login)
+    dashboard/page.tsx       Panel privado y códigos QR (/dashboard)
     api/
       health/route.ts        Comprueba la conexión a MySQL
       auth/register/route.ts Valida y registra usuarios
       auth/login/route.ts    Autentica usuarios y crea sesión
+      auth/logout/route.ts   Cierra la sesión
+      doorbells/route.ts     Crea un timbre para el usuario autenticado
       rings/route.ts         Recibe avisos de visitas y paquetes
     t/
       [token]/
         page.tsx             Página pública de un timbre
   components/
     AuthModeSwitch.tsx       Navegación entre login y registro
+    CreateDoorbellForm.tsx   Formulario de alta de timbres
     LoginForm.tsx            Formulario de inicio de sesión
     LoginPanel.tsx           Estados visuales del login
     RegisterForm.tsx         Formulario de alta de usuario
     RegistrationPanel.tsx    Estados del flujo de registro
     RingForm.tsx             Formulario interactivo del visitante
   lib/validation/
+    createDoorbellSchema.ts  Validación de timbres
     registerSchema.ts        Validación del registro
     loginSchema.ts           Validación del login
   server/
@@ -74,6 +83,7 @@ src/
       Ring.js                Modelo de aviso recibido
       Index.js               Asociaciones entre los modelos
     services/
+      doorbellService.js     Creación de timbres con token único
       userService.js         Alta de usuario y hash de contraseña
       ringService.js         Búsqueda del timbre y registro del aviso
     security/
@@ -110,6 +120,7 @@ por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
    ```env
    DATABASE_URL=mysql://USUARIO:CONTRASEÑA@localhost:3306/timbrear_dev
    AUTH_SECRET=un-secreto-aleatorio-de-al-menos-32-bytes
+   APP_URL=http://localhost:3000
    ```
 
    Reemplazá `USUARIO` y `CONTRASEÑA` con las credenciales de un usuario de
@@ -118,7 +129,9 @@ por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
    usarse en la URL. No subas `.env.local` ni compartas sus credenciales.
    Generá `AUTH_SECRET` con `openssl rand -base64 32`. Es necesario tanto para
    registrarse como para iniciar sesión, ya que el servidor firma la cookie de
-   sesión con ese secreto.
+   sesión con ese secreto. `APP_URL` es la dirección pública de la aplicación
+   que se incorpora a los QR; en desarrollo puede omitirse si usás
+   `http://localhost:3000`. En producción configurala con el dominio HTTPS real.
 
 3. Crear la base de datos con una cuenta autorizada de MySQL:
 
@@ -142,10 +155,10 @@ por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
    de demostración, visitá
    [http://localhost:3000/t/demo1234abcd](http://localhost:3000/t/demo1234abcd).
 
-La demo no necesita que MySQL esté iniciado. El registro, el login, las páginas
-de timbres reales y `/api/health` requieren una conexión válida a la base de
-datos. El registro y el login también requieren que `AUTH_SECRET` esté
-configurado.
+La demo no necesita que MySQL esté iniciado. El registro, el login, el
+dashboard, la creación de timbres, las páginas de timbres reales y `/api/health`
+requieren una conexión válida a la base de datos. El registro y el login también
+requieren que `AUTH_SECRET` esté configurado.
 
 ## Comandos
 
@@ -177,9 +190,12 @@ permisos.
 | `/` | Landing page del proyecto. |
 | `/register` | Formulario para crear una cuenta. |
 | `/login` | Formulario para iniciar sesión. |
+| `/dashboard` | Panel privado con timbres y códigos QR. |
 | `/t/[token]` | Página pública del timbre identificado por token. |
 | `POST /api/auth/register` | Valida y crea una cuenta de residente. |
 | `POST /api/auth/login` | Valida credenciales e inicia una sesión. |
+| `POST /api/auth/logout` | Elimina la cookie de sesión. |
+| `POST /api/doorbells` | Crea un timbre para el usuario autenticado. |
 | `POST /api/rings` | Valida y registra un aviso. |
 | `GET /api/health` | Comprueba la conexión a la base de datos. |
 

@@ -1,11 +1,8 @@
 'use client';
 
 import { useState, type SubmitEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validation/loginSchema';
-
-interface LoginFormProps {
-  onLoggedIn: (email: string) => void;
-}
 
 interface LoginResponse {
   error?: string;
@@ -18,7 +15,8 @@ interface LoginResponse {
   };
 }
 
-export const LoginForm = ({ onLoggedIn }: LoginFormProps) => {
+export const LoginForm = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{
@@ -54,7 +52,7 @@ export const LoginForm = ({ onLoggedIn }: LoginFormProps) => {
       const result = (await response.json()) as LoginResponse;
 
       if (response.ok && result.user) {
-        onLoggedIn(result.user.email);
+        router.replace('/dashboard');
         return;
       }
 

@@ -1,6 +1,6 @@
 import 'server-only';
 import { UniqueConstraintError } from 'sequelize';
-import { User } from '../models/Index.js';
+import { Doorbell, User } from '../models/Index.js';
 import { hashPassword, verifyPassword } from '../security/password.js';
 
 export async function registerUser({ email, password }) {
@@ -24,4 +24,34 @@ export async function authenticateUser({ email, password }) {
   }
 
   return { id: user.id, email: user.email };
+}
+
+/**
+ * @param {number} userId
+ * @returns {Promise<{
+ *   user: { id: number, email: string },
+ *   doorbells: { id: number, label: string, token: string, active: boolean }[]
+ * } | null>}
+ */
+export async function getUserDashboard(userId) {
+  const user = await User.findByPk(userId, {
+    attributes: ['id', 'email'],
+  });
+  if (!user) return null;
+
+  const doorbells = await Doorbell.findAll({
+    where: { user_id: userId },
+    attributes: ['id', 'label', 'token', 'active'],
+    order: [['createdAt', 'DESC']],
+  });
+
+  return {
+    user: { id: user.id, email: user.email },
+    doorbells: doorbells.map(({ id, label, token, active }) => ({
+      id,
+      label,
+      token,
+      active,
+    })),
+  };
 }

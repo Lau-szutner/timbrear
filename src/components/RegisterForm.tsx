@@ -1,11 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, type SubmitEvent } from 'react';
 import { registerSchema } from '@/lib/validation/registerSchema';
-
-interface RegisterFormProps {
-  onRegistered: (email: string) => void;
-}
 
 interface RegisterErrorResponse {
   error?: string;
@@ -15,7 +12,8 @@ interface RegisterErrorResponse {
   };
 }
 
-export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
+export const RegisterForm = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,7 +59,7 @@ export const RegisterForm = ({ onRegistered }: RegisterFormProps) => {
       };
 
       if (response.status === 201 && result.user) {
-        onRegistered(result.user.email);
+        router.replace('/dashboard');
         return;
       }
 
