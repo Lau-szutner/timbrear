@@ -1,26 +1,240 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf9f6;
+  --foreground: #20231f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-page: #faf9f6;
+  --color-ink: #20231f;
+  --color-pine: #233b32;
+  --color-pine-hover: #304d40;
+  --color-sage-pale: #e8eee8;
+  --color-sage: #578365;
+  --color-sage-dark: #385545;
+  --color-text-muted: #62665f;
+  --color-text-soft: #777a73;
+  --color-stroke: #d8d9d2;
+  --color-card-stroke: #e7e5dd;
+  --color-card-muted: #f5f6f2;
+  --color-qr-empty: #f0f1ec;
+  --color-sage-line: #a9bcae;
+  --color-success-stroke: #cbdccf;
+  --color-input-placeholder: #8b8e86;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
+  min-height: 100%;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@utility app-html {
+  @apply h-full antialiased;
+}
+
+@utility app-body {
+  @apply flex min-h-full flex-col;
+}
+
+@utility page-shell {
+  @apply min-h-screen bg-page text-ink;
+}
+
+@utility site-header {
+  @apply mx-auto flex max-w-6xl items-center justify-between px-6 py-6;
+}
+
+@utility brand-link {
+  @apply flex items-center gap-3;
+}
+
+@utility brand-mark {
+  @apply flex size-10 items-center justify-center rounded-xl bg-pine text-lg font-bold text-white;
+}
+
+@utility brand-name {
+  @apply text-xl font-semibold tracking-tight;
+}
+
+@utility header-action {
+  @apply rounded-full border border-stroke px-5 py-2.5 text-sm font-semibold transition;
+}
+
+@utility content-muted {
+  @apply text-text-muted;
+}
+
+@utility content-soft {
+  @apply text-text-soft;
+}
+
+@utility text-eyebrow {
+  @apply text-sm font-semibold uppercase tracking-[0.16em] text-sage;
+}
+
+@utility hero-eyebrow {
+  @apply mb-6 inline-flex items-center gap-2 rounded-full bg-sage-pale px-4 py-2 text-sm font-medium text-sage-dark;
+}
+
+@utility pill {
+  @apply rounded-full bg-sage-pale px-4 py-2 text-sm font-semibold text-sage-dark;
+}
+
+@utility button-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-pine px-7 py-3.5 font-semibold text-white transition;
+}
+
+@utility button-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-stroke px-7 py-3.5 font-semibold transition;
+}
+
+@utility landing-hero {
+  @apply mx-auto grid max-w-6xl items-center gap-14 px-6 pb-20 pt-12;
+}
+
+@utility hero-title {
+  @apply max-w-2xl text-5xl font-semibold leading-[1.08] tracking-tight sm:text-6xl;
+}
+
+@utility hero-description {
+  @apply mt-6 max-w-xl text-lg leading-8 text-text-muted;
+}
+
+@utility hero-actions {
+  @apply mt-9 flex flex-col gap-3 sm:flex-row;
+}
+
+@utility demo-note {
+  @apply mt-4 text-sm text-text-soft;
+}
+
+@utility preview-frame {
+  @apply relative mx-auto w-full max-w-sm;
+}
+
+@utility preview-backdrop {
+  @apply absolute -inset-5 rounded-[2.5rem] bg-sage-pale;
+}
+
+@utility preview-card {
+  @apply relative rounded-[2rem] border border-card-stroke bg-white p-7 shadow-xl shadow-pine/5;
+}
+
+@utility preview-heading {
+  @apply flex items-center justify-between;
+}
+
+@utility qr-grid {
+  @apply grid size-48 grid-cols-7 grid-rows-7 gap-1 rounded-xl bg-white p-3;
+}
+
+@utility qr-cell {
+  @apply rounded-[2px];
+}
+
+@utility qr-cell-filled {
+  @apply bg-pine;
+}
+
+@utility qr-cell-empty {
+  @apply bg-qr-empty;
+}
+
+@utility preview-actions {
+  @apply mt-6 grid grid-cols-2 gap-3;
+}
+
+@utility preview-action {
+  @apply rounded-xl bg-card-muted px-3 py-3 text-center text-sm font-medium;
+}
+
+@utility steps-section {
+  @apply border-y border-card-stroke bg-white;
+}
+
+@utility section-container {
+  @apply mx-auto max-w-6xl px-6 py-16;
+}
+
+@utility steps-grid {
+  @apply mt-10 grid gap-8 md:grid-cols-3;
+}
+
+@utility step-card {
+  @apply rounded-2xl bg-page p-6;
+}
+
+@utility demo-text-link {
+  @apply font-semibold text-sage-dark underline decoration-sage-line underline-offset-4;
+}
+
+@utility site-footer {
+  @apply mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-text-soft;
+}
+
+@utility doorbell-section {
+  @apply mx-auto flex max-w-6xl justify-center px-6 pb-16 pt-8;
+}
+
+@utility doorbell-card-wrap {
+  @apply relative w-full max-w-lg;
+}
+
+@utility doorbell-card-backdrop {
+  @apply absolute -inset-3 rounded-[2.5rem] bg-sage-pale;
+}
+
+@utility doorbell-card {
+  @apply relative rounded-[2rem] border border-card-stroke bg-white p-6 shadow-xl shadow-pine/5;
+}
+
+@utility ring-form {
+  @apply flex flex-col gap-4;
+}
+
+@utility ring-button-primary {
+  @apply rounded-2xl bg-pine px-5 py-5 text-lg font-semibold text-white transition disabled:cursor-wait disabled:opacity-60;
+}
+
+@utility ring-button-secondary {
+  @apply rounded-2xl border border-stroke bg-white px-5 py-5 text-lg font-semibold text-pine transition disabled:cursor-wait disabled:opacity-60;
+}
+
+@utility ring-message-input {
+  @apply rounded-xl border border-stroke bg-page px-4 py-3 text-ink outline-none transition placeholder:text-input-placeholder focus:border-sage focus:ring-2 focus:ring-sage/20 disabled:opacity-60;
+}
+
+@utility ring-success {
+  @apply rounded-2xl border border-success-stroke bg-sage-pale p-6 text-center;
+}
+
+@utility ring-success-icon {
+  @apply mx-auto flex size-12 items-center justify-center rounded-full bg-white text-xl font-semibold text-sage-dark;
+}
+
+@utility ring-success-title {
+  @apply mt-4 text-lg font-semibold text-pine;
+}
+
+@utility ring-success-message {
+  @apply mt-2 leading-6 text-sage-dark;
+}
+
+@utility ring-error {
+  @apply rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700;
+}
+
+@utility loading-section {
+  @apply mx-auto flex min-h-[70vh] max-w-6xl justify-center px-6 pb-16 pt-8;
+}
+
+@utility loading-card {
+  @apply relative rounded-[2rem] border border-card-stroke bg-white p-10 text-center shadow-xl shadow-pine/5;
 }

@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TimbreAR
 
-## Getting Started
+TimbreAR es un prototipo de aplicación web para avisar a los residentes cuando
+llega una visita o un paquete, especialmente cuando el timbre convencional no
+funciona. La idea es colocar un código QR en la entrada: quien lo escanea abre
+una página del timbre y puede enviar un aviso.
 
-First, run the development server:
+## Estado actual
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+El proyecto está en desarrollo. Hoy incluye:
+
+- Una landing page en `/` que explica la idea.
+- Una página de timbre en `/t/[token]`.
+- Un formulario para avisar si alguien es una visita o trae un paquete.
+- Un endpoint que valida el aviso y, para timbres reales, lo guarda en MySQL.
+- Una ruta de demostración en `/t/demo1234abcd`. Esta simulación no requiere
+  conexión a la base de datos, no guarda el aviso y no envía notificaciones.
+- Un endpoint de salud de la base de datos en `/api/health`.
+
+Todavía no están implementados el registro de residentes, la creación de timbres,
+la generación de códigos QR ni el envío de notificaciones push. Por eso, el
+mensaje de éxito de la demo no representa una notificación real.
+
+## Tecnologías
+
+- Next.js con App Router y TypeScript.
+- React y Tailwind CSS.
+- MySQL, Sequelize y `mysql2`.
+- Zod para validar los datos que recibe la API.
+
+Next.js reúne frontend y backend en una misma aplicación. Las páginas y
+componentes de interfaz viven en `src/app`; los endpoints HTTP también están
+ahí, bajo `src/app/api`. La lógica de negocio y el acceso a la base de datos
+están en `src/server`.
+
+## Estructura del proyecto
+
+```text
+src/
+  app/
+    page.tsx                 Landing page (/)
+    layout.tsx               Layout compartido y metadatos
+    api/
+      health/route.ts        Comprueba la conexión a MySQL
+      rings/route.ts         Recibe avisos de visitas y paquetes
+    t/
+      [token]/
+        page.tsx             Página pública de un timbre
+        RingForm.tsx         Formulario interactivo del visitante
+  server/
+    config/database.js       Conexión Sequelize a MySQL
+    models/
+      User.js                Modelo de residente
+      Doorbell.js            Modelo de timbre
+      Ring.js                Modelo de aviso recibido
+      Index.js               Asociaciones entre los modelos
+    services/
+      ringService.js         Búsqueda del timbre y registro del aviso
+db/
+  config.cjs                 Configuración de Sequelize CLI
+  migrations/                Cambios versionados del esquema de la base
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+En una URL como `/t/abc12345`, `[token]` representa un segmento dinámico: la
+página recibe ese valor, busca un timbre activo con ese token y muestra el
+formulario correspondiente. Los archivos `route.ts` definen endpoints de API;
+por ejemplo, `POST /api/rings` valida una solicitud y delega el trabajo en
+`ringService.js`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Requisitos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js compatible con la versión indicada en `package.json`.
+- npm.
+- MySQL, solo para usar la base de datos y los timbres reales.
 
-## Learn More
+## Configuración local
 
-To learn more about Next.js, take a look at the following resources:
+1. Instalar las dependencias:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Crear un archivo `.env.local` en la raíz del proyecto y configurar la URL
+   de conexión:
 
-## Deploy on Vercel
+   ```env
+   DATABASE_URL=mysql://USUARIO:CONTRASEÑA@localhost:3306/timbrear_dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Reemplazá `USUARIO` y `CONTRASEÑA` con las credenciales de un usuario de
+   MySQL que tenga permisos sobre `timbrear_dev`. Si la contraseña contiene
+   caracteres reservados de URL, como `@`, `/` o `#`, deben codificarse para
+   usarse en la URL. No subas `.env.local` ni compartas sus credenciales.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Crear la base de datos con una cuenta autorizada de MySQL:
+
+   ```sql
+   CREATE DATABASE IF NOT EXISTS timbrear_dev;
+   ```
+
+4. Crear las tablas ejecutando las migraciones:
+
+   ```bash
+   npm run db:migrate
+   ```
+
+5. Iniciar el servidor de desarrollo:
+
+   ```bash
+   npm run dev
+   ```
+
+   Abrí [http://localhost:3000](http://localhost:3000). Para probar el flujo
+   de demostración, visitá
+   [http://localhost:3000/t/demo1234abcd](http://localhost:3000/t/demo1234abcd).
+
+La demo no necesita que MySQL esté iniciado. Las páginas de timbres reales y
+`/api/health` sí requieren una conexión válida a la base de datos.
+
+## Comandos
+
+| Comando | Descripción |
+| --- | --- |
+| `npm run dev` | Inicia el servidor de desarrollo. |
+| `npm run build` | Genera la compilación de producción. |
+| `npm run start` | Inicia la aplicación compilada. |
+| `npm run lint` | Ejecuta ESLint. |
+| `npm run db:migrate` | Aplica las migraciones pendientes de MySQL. |
+| `npm run db:rollback` | Revierte la última migración aplicada. |
+
+## Modelo de datos inicial
+
+- **Users**: residentes, con email y hash de contraseña.
+- **Doorbells**: timbres pertenecientes a un residente, con token, etiqueta,
+  estado activo y campos previstos para configurar un canal de notificación.
+- **Rings**: avisos asociados a un timbre, clasificados como `visit` o
+  `package`, con mensaje opcional y estado.
+
+La migración inicial se encuentra en `db/migrations`. Las migraciones modifican
+el esquema de la base de datos; no crean cuentas de MySQL ni configuran sus
+permisos.
+
+## Rutas principales
+
+| Ruta | Función |
+| --- | --- |
+| `/` | Landing page del proyecto. |
+| `/t/[token]` | Página pública del timbre identificado por token. |
+| `POST /api/rings` | Valida y registra un aviso. |
+| `GET /api/health` | Comprueba la conexión a la base de datos. |
+
+El token `demo1234abcd` es una excepción de demostración implementada en el
+servicio: muestra un timbre de ejemplo y simula el éxito sin persistir datos.
